@@ -99,14 +99,11 @@ pub fn typecheck(program: &mut Program) -> Result<ClassRegistry, String> {
 fn register_class(ctx: &mut TypeContext, class: &ClassDef) -> Result<(), String> {
     let mut class_info = ClassInfo::new(class.name.clone());
 
-    // Register fields
     for field in &class.fields {
-        // Validate field type
         validate_type(ctx, &field.ty)?;
         class_info.add_field(field.name.clone(), field.ty.clone());
     }
 
-    // Register methods
     for method in &class.methods {
         let method_info = MethodInfo {
             name: method.name.clone(),
@@ -150,22 +147,18 @@ fn typecheck_method(
     class_name: &str,
     method: &mut MethodDef,
 ) -> Result<(), String> {
-    // Create local environment with parameters
     let mut local_env = ctx.global_env.clone();
 
-    // Add 'self' as the class type
+    // Inside a method, `self` is bound to the enclosing class type.
     local_env.insert("self".to_string(), Type::Class(class_name.to_string()));
 
-    // Add method parameters
     for (param_name, param_type) in &method.params {
         validate_type(ctx, param_type)?;
         local_env.insert(param_name.clone(), param_type.clone());
     }
 
-    // Set expected return type
     ctx.current_return_type = Some(method.return_type.clone());
 
-    // Type check body
     for stmt in &mut method.body {
         typecheck_stmt(ctx, stmt, &mut local_env)?;
     }
@@ -186,7 +179,6 @@ fn typecheck_stmt(
             return_type,
             body,
         } => {
-            // Create local environment with parameters
             let mut local_env = env.clone();
             for (param_name, param_type) in params.iter() {
                 local_env.insert(param_name.clone(), param_type.clone());
@@ -194,7 +186,6 @@ fn typecheck_stmt(
 
             ctx.current_return_type = Some(return_type.clone());
 
-            // Type check body
             for body_stmt in body.iter_mut() {
                 typecheck_stmt(ctx, body_stmt, &mut local_env)?;
             }
@@ -206,7 +197,6 @@ fn typecheck_stmt(
         Stmt::Return(expr) => {
             typecheck_expr(ctx, expr, env)?;
 
-            // Check return type matches
             if let Some(expected) = &ctx.current_return_type {
                 if *expected != Type::Unknown && *expected != Type::Unit {
                     let _ = expected.unify(&expr.ty)?;
@@ -244,7 +234,6 @@ fn typecheck_stmt(
                 AssignTarget::Field { object, field } => {
                     typecheck_expr(ctx, object, env)?;
 
-                    // Get the class info
                     let class_name = object.ty.class_name().ok_or_else(|| {
                         format!("Cannot access field on non-class type: {}", object.ty)
                     })?;
@@ -267,7 +256,6 @@ fn typecheck_stmt(
         Stmt::Delete(expr) => {
             typecheck_expr(ctx, expr, env)?;
 
-            // Can only delete class instances
             if !expr.ty.is_class() {
                 return Err(format!("Cannot delete non-class type: {}", expr.ty));
             }
@@ -362,7 +350,6 @@ fn typecheck_expr(
         }
 
         Expr::Call { name, args } => {
-            // Look up function type
             let func_type = env
                 .get(name)
                 .or_else(|| ctx.global_env.get(name))
@@ -397,7 +384,6 @@ fn typecheck_expr(
         } => {
             typecheck_expr(ctx, object, env)?;
 
-            // Get the class info
             let class_name = object
                 .ty
                 .class_name()
@@ -414,7 +400,6 @@ fn typecheck_expr(
                 .ok_or_else(|| format!("Unknown method {} on class {}", method, class_name))?
                 .clone();
 
-            // Check argument count
             if args.len() != method_info.params.len() {
                 return Err(format!(
                     "Method {}.{} expects {} arguments, got {}",
@@ -425,7 +410,6 @@ fn typecheck_expr(
                 ));
             }
 
-            // Type check arguments
             for (arg, (_, param_type)) in args.iter_mut().zip(method_info.params.iter()) {
                 typecheck_expr(ctx, arg, env)?;
                 let _ = arg.ty.unify(param_type)?;
@@ -437,7 +421,6 @@ fn typecheck_expr(
         Expr::FieldAccess { object, field } => {
             typecheck_expr(ctx, object, env)?;
 
-            // Get the class info
             let class_name = object
                 .ty
                 .class_name()
@@ -456,14 +439,12 @@ fn typecheck_expr(
         }
 
         Expr::New { class, args } => {
-            // Get the class info
             let class_info = ctx
                 .classes
                 .get(class)
                 .ok_or_else(|| format!("Unknown class: {}", class))?
                 .clone();
 
-            // Get constructor if exists
             if let Some(ctor) = class_info.get_method("__init__") {
                 if args.len() != ctor.params.len() {
                     return Err(format!(

@@ -78,7 +78,6 @@ fn main() {
         }
     };
 
-    // Determine the pass pipeline
     let passes = if let Some(p) = custom_passes {
         Some(p)
     } else if optimize {

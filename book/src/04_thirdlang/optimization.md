@@ -247,6 +247,66 @@ Cleans up the control flow graph:
 - Merges blocks with single predecessors
 - Simplifies trivial branches
 
+The `counter.tl` example has no branches, so `simplifycfg` has nothing to do there. To see it work, we need a method with control flow. Consider an `abs` method:
+
+```
+class Number {
+    value: int
+
+    def abs(self) -> int {
+        if (self.value < 0) {
+            return 0 - self.value
+        } else {
+            return self.value
+        }
+    }
+}
+```
+
+After `mem2reg`, the `abs` method has three basic blocks and two separate `ret` instructions, one per branch:
+
+```
+define i64 @Number__abs(ptr %self) {
+entry:
+  %field_ptr = getelementptr %Number, ptr %self, i32 0, i32 0
+  %field = load i64, ptr %field_ptr
+  %lt = icmp slt i64 %field, 0
+  br i1 %lt, label %then, label %else
+
+then:
+  %sub = sub i64 0, %field
+  ret i64 %sub
+
+else:
+  ret i64 %field
+}
+```
+
+Adding `simplifycfg` (`--passes "mem2reg,simplifycfg"`) merges the two exits into a single return block. Because control can reach it from either branch, LLVM inserts a `phi` node to pick the right value based on which block executed:
+
+```
+define i64 @Number__abs(ptr %self) {
+entry:
+  %field_ptr = getelementptr %Number, ptr %self, i32 0, i32 0
+  %field = load i64, ptr %field_ptr
+  %lt = icmp slt i64 %field, 0
+  br i1 %lt, label %then, label %else
+
+common.ret:
+  %common.ret.op = phi i64 [ %sub, %then ], [ %field, %else ]
+  ret i64 %common.ret.op
+
+then:
+  %sub = sub i64 0, %field
+  br label %common.ret
+
+else:
+  br label %common.ret
+}
+```
+
+The `phi` node is how SSA form expresses "the value depends on the path taken". Merging returns like this keeps the CFG small, which helps later passes and the backend generate tighter code.
+
 ## Using the CLI
 
 ```bash

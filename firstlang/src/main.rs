@@ -14,11 +14,9 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() > 1 {
-        // Run a file
         let filename = &args[1];
         run_file(filename);
     } else {
-        // Start REPL
         repl();
     }
 }
@@ -49,7 +47,7 @@ fn bracket_depth(s: &str) -> i32 {
     let mut prev_char = ' ';
 
     for c in s.chars() {
-        // Handle string literals (skip brackets inside strings)
+        // Brackets inside string literals should not count toward depth.
         if c == '"' && prev_char != '\\' {
             in_string = !in_string;
         }
@@ -83,10 +81,8 @@ fn repl() {
         let mut input = String::new();
         let mut line = String::new();
 
-        // Read first line
         if stdin.lock().read_line(&mut line).unwrap() == 0 {
-            // EOF
-            break;
+            break; // EOF (Ctrl-D)
         }
 
         let trimmed = line.trim();
@@ -101,14 +97,13 @@ fn repl() {
 
         input.push_str(&line);
 
-        // Check for multi-line input (unclosed brackets)
+        // Keep reading continuation lines until every bracket is closed.
         while bracket_depth(&input) > 0 {
             print!("... ");
             stdout.flush().unwrap();
 
             line.clear();
             if stdin.lock().read_line(&mut line).unwrap() == 0 {
-                // EOF while reading multi-line
                 break;
             }
             input.push_str(&line);
@@ -116,7 +111,6 @@ fn repl() {
 
         let input = input.trim();
 
-        // Try to parse and run the input
         match parse(input) {
             Ok(program) => match interpreter.run(&program) {
                 Ok(value) => {

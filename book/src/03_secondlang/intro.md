@@ -1,5 +1,7 @@
 # Secondlang
 
+> **Setup**: Secondlang compiles with LLVM, so before anything else you need Rust nightly and LLVM 20 installed, with `LLVM_SYS_201_PREFIX` pointing at your LLVM (for example `export LLVM_SYS_201_PREFIX=/opt/homebrew/opt/llvm` on macOS). A missing or mismatched LLVM is the most common reason this crate fails to build. See [Prerequisites](#prerequisites) below for versions and details.
+
 In Part II, we built [Firstlang](../02_firstlang/intro.md), an interpreted language with functions, recursion, and control flow. Now we take the next step: adding a *type system* and compiling to native code using LLVM.
 
 ## What Changes from Firstlang?
@@ -144,6 +146,12 @@ LLVM is required. Check your version with `llvm-config --version` and update `Ca
 * LLVM 19.x: `features = ["llvm19-1"]`
 * LLVM 18.x: `features = ["llvm18-1"]`
 
+The `llvm-sys` crate (which inkwell builds on) locates LLVM through a version-specific environment variable. For LLVM 20 that is `LLVM_SYS_201_PREFIX`:
+
+```bash
+export LLVM_SYS_201_PREFIX=/opt/homebrew/opt/llvm   # macOS (Homebrew); adjust for your system
+```
+
 Secondlang also requires Rust nightly due to inkwell's dependency on edition 2024.
 
 ```bash
@@ -169,7 +177,7 @@ rustup run nightly cargo run -- --check examples/fibonacci.sl
 
 In the following chapters, we build Secondlang step by step:
 
-1. [Why Types Matter](why_types.md) - Benefits of static typing
+1. [The Case for Types](why_types.md) - Benefits of static typing
 2. [Type Annotations](annotations.md) - Grammar and parsing changes
 3. [Type Inference](inference.md) - Deducing types automatically
 4. [AST Optimizations](optimizations.md) - Visitor pattern and optimization passes

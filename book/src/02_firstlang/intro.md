@@ -12,12 +12,12 @@ The Calculator grammar was minimal:
 
 ```text
 Program = _{ SOI ~ Expr ~ EOF }
-Expr = { UnaryExpr | BinaryExpr | Term }
-Term = _{Int | "(" ~ Expr ~ ")" }
+Expr = { BinaryExpr | UnaryExpr | Term }
+Term = { Int | "(" ~ Expr ~ ")" }
 UnaryExpr = { Operator ~ Term }
-BinaryExpr = { Term ~ (Operator ~ Term)+ }
+BinaryExpr = { (UnaryExpr | Term) ~ (Operator ~ Term)+ }
 Operator = { "+" | "-" }
-Int = @{ Operator? ~ ASCII_DIGIT+ }
+Int = @{ ASCII_DIGIT+ }
 ```
 
 Firstlang adds *statements*, *identifiers*, *functions*, and *control flow*:

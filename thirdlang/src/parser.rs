@@ -43,10 +43,6 @@ fn parse_top_level(pair: Pair<Rule>) -> Result<TopLevel, String> {
     }
 }
 
-// =============================================================================
-// Class Parsing
-// =============================================================================
-
 // ANCHOR: parse_class
 fn parse_class_def(pair: Pair<Rule>) -> Result<ClassDef, String> {
     let mut inner = pair.into_inner();
@@ -88,8 +84,8 @@ fn parse_method_def(pair: Pair<Rule>) -> Result<MethodDef, String> {
 
     let name = inner.next().unwrap().as_str().to_string();
 
-    // Skip 'self' parameter
-    inner.next(); // SelfParam
+    // Every method's first parameter is `self`; it is implicit in the AST.
+    inner.next();
 
     let mut params: Vec<(String, Type)> = Vec::new();
     let mut return_type = Type::Unit;
@@ -122,10 +118,6 @@ fn parse_method_def(pair: Pair<Rule>) -> Result<MethodDef, String> {
     })
 }
 // ANCHOR_END: parse_class
-
-// =============================================================================
-// Statement Parsing
-// =============================================================================
 
 fn parse_stmt(pair: Pair<Rule>) -> Result<Stmt, String> {
     let inner = pair.into_inner().next().unwrap();
@@ -278,10 +270,6 @@ fn parse_assign_field_access(pair: Pair<Rule>) -> Result<AssignTarget, String> {
         field: last_field,
     })
 }
-
-// =============================================================================
-// Expression Parsing
-// =============================================================================
 
 fn parse_expr(pair: Pair<Rule>) -> Result<TypedExpr, String> {
     let expr = match pair.as_rule() {
@@ -524,9 +512,7 @@ mod tests {
         let program = parse(source).unwrap();
         assert_eq!(program.len(), 3);
 
-        if let TopLevel::Stmt(Stmt::Delete(_)) = &program[2] {
-            // OK
-        } else {
+        if !matches!(&program[2], TopLevel::Stmt(Stmt::Delete(_))) {
             panic!("Expected delete statement");
         }
     }

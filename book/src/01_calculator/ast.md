@@ -56,10 +56,10 @@ This handles `-1` (minus applied to 1) or `-(2 + 3)` (minus applied to a whole e
 **Binary expressions** - An operator between two things:
 
 ```
-BinaryExpr = { Term ~ (Operator ~ Term)* }
+BinaryExpr = { (UnaryExpr | Term) ~ (Operator ~ Term)+ }
 ```
 
-This handles `1 + 2` (plus between 1 and 2) or `1 + 2 + 3` (chained additions).
+This handles `1 + 2` (plus between 1 and 2) or `1 + 2 + 3` (chained additions). The `+` (one or more) requires at least one operator, which keeps a lone `Term` from matching as a binary expression.
 
 Here's a complex example: `"-1 + (2 + 3)"` forms this tree:
 
@@ -117,7 +117,7 @@ The core insight is **recursion**. To evaluate `1 + 2`:
 2. Evaluate the right side (`2`) → get `2`
 3. Apply the operator (`+`) → get `3`
 
-If the left side were `(3 + 4)` instead of `1`, we'd recursively evaluate that first. This is why trees are so powerful - the structure tells us the order of operations.
+If the left side were `(3 + 4)` instead of `1`, we'd recursively evaluate that first. This is what the tree buys us: the structure itself encodes the order of operations.
 
 Here's the evaluation function:
 
@@ -161,7 +161,7 @@ Run tests locally with:
 cargo test interpreter --tests
 ```
 
-## Why This Pattern Matters
+## The Tree-Walking Pattern
 
 The pattern we just learned - parse to AST, recursively evaluate - is the foundation of *every* interpreter. Python, Ruby, JavaScript interpreters all do this (with more node types, of course).
 
@@ -170,7 +170,7 @@ In the next sections, we'll see two other ways to execute the same AST:
 - **JIT compilation** - Convert the AST to machine code, then run it
 - **Bytecode VM** - Convert to simpler instructions, then interpret those
 
-Same AST, three different backends. That's the power of separating parsing from execution.
+Same AST, three different backends. That is what separating parsing from execution gives us.
 
 <div class="checkpoint">
 

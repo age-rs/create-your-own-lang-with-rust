@@ -101,6 +101,22 @@ We use `ClassName__methodName`:
 
 This avoids name collisions between classes.
 
+### How Name Mangling Works
+
+The mangled name is just the class name and method name joined by a `__` separator:
+
+```rust,ignore
+let fn_name = format!("{}__{}", class_name, method.name);
+```
+
+For ordinary methods this reads exactly as you would expect: `get_x` on `Point` becomes `Point__get_x`. The surprising case is the dunder methods. Since `method.name` for a constructor is already `__init__` (two leading underscores of its own), joining it with the `__` separator produces four underscores in a row:
+
+```text
+"Point" + "__" + "__init__"  =  "Point____init__"
+```
+
+The same happens for destructors: `Point____del__`. This is why the call sites for `new` and `delete` in [thirdlang/src/codegen.rs](https://github.com/ehsanmok/create-your-own-lang-with-rust/blob/master/thirdlang/src/codegen.rs) look up `Point____init__` and `Point____del__` rather than `Point__init` or `Point__del`. The extra underscores are not a special encoding, just the separator meeting a name that already starts with `__`.
+
 ### Self as First Parameter
 
 Every method takes `self` (a pointer) as its first parameter:
@@ -322,7 +338,7 @@ At this point, you should be able to:
 
 - Run `cargo run --bin thirdlang -- --ir examples/point.tl` and see IR
 - See `%Point` struct type in the output
-- See `Point__init` and other method functions
+- See `Point____init__` and other method functions
 
 </div>
 

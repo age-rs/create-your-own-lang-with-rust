@@ -6,7 +6,7 @@ But something is missing. Try this thought experiment: Can you write a program t
 
 No - because a calculator is not a *programming language* yet.
 
-## The Realization
+## Where Calculators Fall Short
 
 A calculator is like a sophisticated pocket calculator: it takes input, computes output, and forgets everything in between. There's no *memory* of previous computations, no way to *name* values for reuse, and no way to *decide* which computation to perform based on conditions.
 
@@ -108,7 +108,3 @@ Each chapter in Part II builds one piece:
 7. **Fibonacci** - The culmination
 
 By the end, you'll have something you can actually *program* in. Not just evaluate expressions - write real algorithms.
-
-## Ready?
-
-Let's build a real language.

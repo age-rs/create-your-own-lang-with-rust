@@ -62,7 +62,7 @@ Key terms used throughout this book.
 
 **mem2reg**: LLVM optimization pass that promotes stack allocations (alloca) to SSA registers. Required for efficient code.
 
-**Method**: Function associated with a class. Receives `self` as implicit first parameter.
+**Method**: Function associated with a class. Receives `self` (the object) as its first parameter.
 
 **Module**: LLVM container for functions, global variables, and type definitions. Compiled as a unit.
 

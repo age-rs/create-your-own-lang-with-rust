@@ -12,7 +12,7 @@ This is how Python, Java, Ruby, and many other languages work. You compile sourc
 
 ### What Is Bytecode?
 
-Think of bytecode as a *simplified assembly language* designed for our VM. Real assembly has hundreds of instructions. Our bytecode has just four:
+Think of bytecode as a *simplified assembly language* designed for our VM. Real assembly has hundreds of instructions. These four carry the arithmetic:
 
 | Opcode | What it does |
 |--------|--------------|
@@ -21,7 +21,7 @@ Think of bytecode as a *simplified assembly language* designed for our VM. Real 
 | `OpSub` | Pop two values, push their difference |
 | `OpPop` | Pop and discard the top value |
 
-That's it! With just these four operations, we can evaluate any arithmetic expression.
+The full enum also has `OpPlus` and `OpMinus` for unary expressions, but these four are enough to evaluate any binary arithmetic expression.
 
 ## Step 1: Define Opcodes
 

@@ -1,5 +1,7 @@
 # Thirdlang
 
+> **Setup**: Like Secondlang, Thirdlang compiles with LLVM and needs Rust nightly plus LLVM 20, with `LLVM_SYS_201_PREFIX` pointing at your LLVM (for example `export LLVM_SYS_201_PREFIX=/opt/homebrew/opt/llvm` on macOS). If the crate will not build, check this first. See [Prerequisites](#prerequisites) below for details.
+
 > **Prerequisites**: This chapter builds on [Secondlang](../03_secondlang/intro.md). Make sure you understand [type checking](../03_secondlang/inference.md) and [LLVM code generation](../03_secondlang/codegen.md) before proceeding.
 
 In Part III, we built [Secondlang](../03_secondlang/intro.md), a statically typed language with LLVM JIT compilation. Now we take the final step: adding **classes** and **object-oriented programming**.
@@ -8,7 +10,7 @@ In Part III, we built [Secondlang](../03_secondlang/intro.md), a statically type
 
 The transition from Secondlang to Thirdlang demonstrates how to add user-defined types to a language. While Secondlang has primitive types (`int`, `bool`), Thirdlang allows programmers to define their own types with **classes**.
 
-### Grammar: ~40 Lines Added
+### Grammar: ~50 Lines Added
 
 Secondlang's type system:
 
@@ -275,6 +277,12 @@ Update `Cargo.toml` for your LLVM version:
 - LLVM 20.x: `features = ["llvm20-1"]`
 - LLVM 19.x: `features = ["llvm19-1"]`
 
+Point `llvm-sys` at your LLVM install with the version-specific prefix variable (`LLVM_SYS_201_PREFIX` for LLVM 20):
+
+```bash
+export LLVM_SYS_201_PREFIX=/opt/homebrew/opt/llvm   # macOS (Homebrew); adjust for your system
+```
+
 ## Quick Start
 
 ```bash
@@ -294,7 +302,7 @@ rustup run nightly cargo test
 
 In the following chapters, we build Thirdlang step by step:
 
-1. [Why Classes?](why_classes.md) - Object-oriented concepts
+1. [The Case for Classes](why_classes.md) - Object-oriented concepts
 2. [Class Syntax and Parsing](classes_syntax.md) - Grammar and AST
 3. [Constructors and Object Creation](constructors.md) - `__init__` and `new`
 4. [Methods and Self](methods.md) - Method calls and the `self` parameter

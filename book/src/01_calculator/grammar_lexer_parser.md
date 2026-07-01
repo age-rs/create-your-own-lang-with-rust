@@ -31,7 +31,7 @@ Don't let this overwhelm you - let's break it down line by line:
 
 **`Program = _{ SOI ~ Expr ~ EOF }`** - A program is an expression, surrounded by "start of input" (`SOI`) and "end of file" (`EOF`). The `_{ }` means we don't create a node for `Program` itself - it's just a wrapper.
 
-**`Expr = { UnaryExpr | BinaryExpr | Term }`** - An expression is either unary (`-1`), binary (`1 + 2`), or a simple term (just a number). The `|` means "or" - try each alternative in order.
+**`Expr = { BinaryExpr | UnaryExpr | Term }`** - An expression is either binary (`1 + 2`), unary (`-1`), or a simple term (just a number). The `|` means "or", and PEG tries each alternative in order, so `BinaryExpr` is attempted first.
 
 **`Term = { Int | "(" ~ Expr ~ ")" }`** - A term is either a number or a parenthesized expression. This is how we handle `(1 + 2) * 3` - the parenthesized part becomes a single term.
 
@@ -67,9 +67,9 @@ CalcParser::parse(Rule::Program, source)
 
 This returns a tree of "pairs" - pest's way of representing matched rules. In the [next section](./ast.md), we'll convert these pairs into our own AST structure, which is easier to work with.
 
-## Why This Matters
+## Why Not Just Use Regexes?
 
-You might wonder: why not just use regular expressions? For a simple calculator, you probably could. But as languages get more complex (nested expressions, functions, classes), grammars scale and regexes don't.
+For a simple calculator, you probably could use regular expressions. But as languages get more complex (nested expressions, functions, classes), grammars scale and regexes don't.
 
 The grammar is also your language's specification. When someone asks "is `--1` valid?", you look at the grammar. When you add a new feature, you extend the grammar. It's the single source of truth for what your language accepts.
 

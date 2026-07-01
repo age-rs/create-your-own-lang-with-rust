@@ -172,8 +172,8 @@ Generated LLVM IR:
 
 ```
 ; delete p  (where p is a Point with destructor)
-call void @Point__del(ptr %p)   ; Destructor
-call void @free(ptr %p)          ; Free memory
+call void @Point____del__(ptr %p)   ; Destructor
+call void @free(ptr %p)             ; Free memory
 ```
 
 ## Memory Safety Issues
@@ -272,7 +272,7 @@ delete p
 </p>
 
 1. `malloc(16)` returns `0x1000`
-2. `Point__init(0x1000, 10, 20)` initializes fields
+2. `Point____init__(0x1000, 10, 20)` initializes fields
 3. `p` holds the pointer `0x1000`
 
 ### Step 2: delete p
@@ -282,7 +282,7 @@ delete p
     <a href><img alt="delete ptr" src="../img/delete-ptr.svg"> </a>
 </p>
 
-1. `Point__del(0x1000)` runs destructor
+1. `Point____del__(0x1000)` runs destructor
 2. `free(0x1000)` returns memory to OS
 3. `p` still holds `0x1000` but it is invalid now!
 
@@ -348,7 +348,7 @@ At this point, you should understand:
 <strong>Related Topics</strong>
 
 - [Constructors](constructors.md) - The `__init__` method
-- [Why Classes](why_classes.md) - Stack vs heap motivation
+- [The Case for Classes](why_classes.md) - Stack vs heap motivation
 - [LLVM Codegen](codegen_classes.md) - How new/delete compile to IR
 
 </div>

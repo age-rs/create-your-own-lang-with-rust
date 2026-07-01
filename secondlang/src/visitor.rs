@@ -136,10 +136,6 @@ pub trait ExprVisitor {
 }
 // ANCHOR_END: expr_visitor
 
-// =============================================================================
-// Pretty Printer - Displays AST in readable format
-// =============================================================================
-
 /// Pretty prints the AST with indentation
 pub struct PrettyPrinter {
     indent: usize,
@@ -258,10 +254,6 @@ impl Default for PrettyPrinter {
     }
 }
 
-// =============================================================================
-// Constant Folder - Evaluates constant expressions at compile time
-// =============================================================================
-
 // ANCHOR: constant_folder
 /// Folds constant expressions: `1 + 2` becomes `3`
 ///
@@ -288,11 +280,10 @@ impl Default for ConstantFolder {
 
 impl ExprVisitor for ConstantFolder {
     fn visit_binary(&mut self, op: BinaryOp, left: &TypedExpr, right: &TypedExpr) -> Expr {
-        // First, recursively fold children
+        // Fold children before the parent so nested constants collapse bottom-up.
         let l = self.visit_expr(left);
         let r = self.visit_expr(right);
 
-        // Try to fold if both are constants
         if let (Expr::Int(lv), Expr::Int(rv)) = (&l.expr, &r.expr) {
             let result = match op {
                 BinaryOp::Add => Some(lv + rv),
@@ -307,7 +298,7 @@ impl ExprVisitor for ConstantFolder {
             }
         }
 
-        // Try boolean constant folding for comparisons
+        // Comparisons between two constants fold to a boolean.
         if let (Expr::Int(lv), Expr::Int(rv)) = (&l.expr, &r.expr) {
             let result = match op {
                 BinaryOp::Lt => Some(*lv < *rv),
@@ -323,7 +314,6 @@ impl ExprVisitor for ConstantFolder {
             }
         }
 
-        // Can't fold, return as-is
         Expr::Binary {
             op,
             left: Box::new(l),
@@ -345,10 +335,6 @@ impl ExprVisitor for ConstantFolder {
     }
 }
 // ANCHOR_END: constant_folder
-
-// =============================================================================
-// Algebraic Simplifier - Applies algebraic identities
-// =============================================================================
 
 // ANCHOR: algebraic_simplifier
 /// Applies algebraic simplifications:
@@ -381,11 +367,10 @@ impl Default for AlgebraicSimplifier {
 
 impl ExprVisitor for AlgebraicSimplifier {
     fn visit_binary(&mut self, op: BinaryOp, left: &TypedExpr, right: &TypedExpr) -> Expr {
-        // First, recursively simplify children
+        // Simplify children first so identities apply to already-reduced operands.
         let l = self.visit_expr(left);
         let r = self.visit_expr(right);
 
-        // Apply algebraic identities
         match (&op, &l.expr, &r.expr) {
             // x + 0 = x
             (BinaryOp::Add, _, Expr::Int(0)) => return l.expr,
@@ -414,10 +399,6 @@ impl ExprVisitor for AlgebraicSimplifier {
     }
 }
 // ANCHOR_END: algebraic_simplifier
-
-// =============================================================================
-// Tests
-// =============================================================================
 
 #[cfg(test)]
 mod tests {

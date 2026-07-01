@@ -209,10 +209,6 @@ pub trait ExprVisitor {
 }
 // ANCHOR_END: expr_visitor
 
-// =============================================================================
-// Pretty Printer
-// =============================================================================
-
 /// Pretty prints the AST with indentation
 pub struct PrettyPrinter {
     indent: usize,
@@ -418,11 +414,7 @@ impl Default for PrettyPrinter {
     }
 }
 
-// =============================================================================
-// Constant Folder (same as Secondlang)
-// =============================================================================
-
-/// Folds constant expressions: `1 + 2` becomes `3`
+/// Folds constant expressions: `1 + 2` becomes `3` (same approach as Secondlang).
 pub struct ConstantFolder;
 
 impl ConstantFolder {
@@ -461,7 +453,7 @@ impl ExprVisitor for ConstantFolder {
             }
         }
 
-        // Try boolean constant folding
+        // Comparisons between two constants fold to a boolean.
         if let (Expr::Int(lv), Expr::Int(rv)) = (&l.expr, &r.expr) {
             let result = match op {
                 BinaryOp::Lt => Some(*lv < *rv),

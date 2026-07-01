@@ -119,7 +119,7 @@ x = x * 2   # x is now 4
 
 The right side is always evaluated *first*, using the current value of `x`. Then the result overwrites `x`. So `x = x + 1` means "take the current `x`, add 1, store it back in `x`."
 
-## Why This Matters
+## Everything Is a Variable
 
 This simple mechanism - storing and looking up names - is the foundation of all programming:
 

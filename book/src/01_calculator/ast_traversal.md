@@ -57,12 +57,12 @@ Let's trace through what happens when we JIT `1 + 2`:
 
 2. **Setup LLVM** - Create context, module, builder
 
-3. **Create wrapper function** - We need a function to call, so we create `__jit` with signature `() -> i64`
+3. **Create wrapper function** - We need a function to call, so we create `jit` with signature `() -> i32`
 
 4. **Compile AST** - `recursive_builder` walks the tree:
-   * Compile `Int(1)` → creates i64 constant `1`
-   * Compile `Int(2)` → creates i64 constant `2`
-   * Compile `Add` → creates `add i64 1, 2` instruction, returns the result
+   * Compile `Int(1)` → creates i32 constant `1`
+   * Compile `Int(2)` → creates i32 constant `2`
+   * Compile `Add` → creates `add i32 1, 2` instruction, returns the result
 
 5. **Return result** - `build_return` emits a `ret` instruction with our computed value
 
@@ -70,7 +70,7 @@ Let's trace through what happens when we JIT `1 + 2`:
 
 7. **Execute** - Call the function, get `3`
 
-### Why This Matters
+### Scaling to Any Expression
 
 The recursive builder pattern scales to any expression, no matter how complex:
 

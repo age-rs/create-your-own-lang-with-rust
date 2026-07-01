@@ -2,7 +2,7 @@
 name = "firstlang"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.83"
 description = "A simple interpreted programming language for learning"
 authors = ["Ehsan M. Kermani <ehsanmok@users.noreply.github.com>"]
 

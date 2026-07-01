@@ -68,7 +68,6 @@ impl<'ctx> CodeGen<'ctx> {
     // ANCHOR: compile
     /// Compile a program and return the module
     pub fn compile(&mut self, program: &Program) -> Result<(), String> {
-        // Declare libc functions
         self.declare_libc_functions();
 
         // First pass: create LLVM struct types for classes
@@ -112,7 +111,6 @@ impl<'ctx> CodeGen<'ctx> {
         // Fourth pass: create __main wrapper for all top-level non-function statements
         self.compile_main_wrapper_all(program)?;
 
-        // Verify module
         self.module
             .verify()
             .map_err(|e| format!("Module verification failed: {}", e.to_string()))?;
@@ -151,7 +149,6 @@ impl<'ctx> CodeGen<'ctx> {
             field_types.push(llvm_type);
         }
 
-        // Create named struct type
         let struct_type = self.context.opaque_struct_type(&class.name);
         struct_type.set_body(&field_types, false);
 
@@ -179,8 +176,7 @@ impl<'ctx> CodeGen<'ctx> {
         // Self pointer is first parameter
         let mut param_types: Vec<BasicMetadataTypeEnum> = vec![ptr_type.into()];
 
-        // Add other parameters
-        // Class-typed parameters are passed as pointers
+        // Class-typed parameters are passed as pointers.
         for (_, param_type) in &method.params {
             let llvm_type: BasicMetadataTypeEnum = if param_type.is_class() {
                 ptr_type.into()
@@ -197,7 +193,6 @@ impl<'ctx> CodeGen<'ctx> {
         let fn_name = format!("{}__{}", class_name, method.name);
         let function = self.module.add_function(&fn_name, fn_type, None);
 
-        // Set parameter names
         function.get_nth_param(0).unwrap().set_name("self");
         for (i, (param_name, _)) in method.params.iter().enumerate() {
             function
@@ -231,15 +226,13 @@ impl<'ctx> CodeGen<'ctx> {
             .cloned()
             .ok_or_else(|| format!("Method {} not declared", fn_name))?;
 
-        // Create entry block
         let entry = self.context.append_basic_block(function, "entry");
         self.builder.position_at_end(entry);
 
-        // Save current function
         self.current_fn = Some(function);
         self.variables.clear();
 
-        // Allocate 'self' parameter (pointer to object)
+        // Store `self` (a pointer to the object) into a stack slot like any parameter.
         let self_ptr = function.get_nth_param(0).unwrap().into_pointer_value();
         let self_alloca = self.create_entry_block_alloca(
             &function,
@@ -249,7 +242,6 @@ impl<'ctx> CodeGen<'ctx> {
         self.builder.build_store(self_alloca, self_ptr).unwrap();
         self.variables.insert("self".to_string(), self_alloca);
 
-        // Allocate other parameters
         for (i, (param_name, param_type)) in method.params.iter().enumerate() {
             let param_value = function.get_nth_param((i + 1) as u32).unwrap();
             let alloca = self.create_entry_block_alloca(&function, param_name, param_type)?;
@@ -257,13 +249,12 @@ impl<'ctx> CodeGen<'ctx> {
             self.variables.insert(param_name.clone(), alloca);
         }
 
-        // Compile body
         let mut last_value = None;
         for body_stmt in &method.body {
             last_value = self.compile_stmt(body_stmt)?;
         }
 
-        // Add return if needed
+        // Functions without an explicit `return` still need a terminator.
         if self
             .builder
             .get_insert_block()
@@ -307,13 +298,11 @@ impl<'ctx> CodeGen<'ctx> {
         self.current_fn = Some(function);
         self.variables.clear();
 
-        // Compile all statements
         let mut last_value: Option<IntValue> = None;
         for stmt in stmts {
             last_value = self.compile_stmt(stmt)?;
         }
 
-        // Return the last value (or 0 if no value)
         let ret_val = last_value.unwrap_or_else(|| self.context.i64_type().const_int(0, false));
         self.builder.build_return(Some(&ret_val)).unwrap();
 
@@ -396,7 +385,6 @@ impl<'ctx> CodeGen<'ctx> {
                 self.current_fn = Some(function);
                 self.variables.clear();
 
-                // Allocate parameters
                 for (i, (param_name, param_type)) in params.iter().enumerate() {
                     let param_value = function.get_nth_param(i as u32).unwrap().into_int_value();
                     let alloca =
@@ -405,13 +393,12 @@ impl<'ctx> CodeGen<'ctx> {
                     self.variables.insert(param_name.clone(), alloca);
                 }
 
-                // Compile body
                 let mut last_value = None;
                 for body_stmt in body {
                     last_value = self.compile_stmt(body_stmt)?;
                 }
 
-                // Add return if needed
+                // Functions without an explicit `return` still need a terminator.
                 if self
                     .builder
                     .get_insert_block()
@@ -657,7 +644,6 @@ impl<'ctx> CodeGen<'ctx> {
                 let obj_val = self.compile_expr(object)?;
                 let obj_ptr = obj_val.into_pointer_value();
 
-                // Get class name
                 let class_name = object.ty.class_name().ok_or("Expected class type")?;
                 let fn_name = format!("{}__{}", class_name, method);
 
@@ -945,14 +931,10 @@ impl<'ctx> CodeGen<'ctx> {
         Target::initialize_native(&InitializationConfig::default())
             .map_err(|e| format!("Failed to initialize native target: {}", e))?;
 
-        // Get the default target triple for this machine
         let triple = TargetMachine::get_default_triple();
-
-        // Get the target from the triple
         let target = Target::from_triple(&triple)
             .map_err(|e| format!("Failed to get target from triple: {}", e))?;
 
-        // Create target machine with default settings
         let target_machine = target
             .create_target_machine(
                 &triple,
@@ -964,11 +946,9 @@ impl<'ctx> CodeGen<'ctx> {
             )
             .ok_or_else(|| "Failed to create target machine".to_string())?;
 
-        // Create pass builder options
         let pass_options = PassBuilderOptions::create();
         pass_options.set_verify_each(true); // Verify IR after each pass
 
-        // Run the passes
         self.module
             .run_passes(passes, &target_machine, pass_options)
             .map_err(|e| format!("Failed to run passes: {}", e))
@@ -1000,18 +980,16 @@ pub fn jit_run_with_opts(
 
     codegen.compile(program)?;
 
-    // Run optimization passes if specified
     if let Some(pass_pipeline) = passes {
         codegen.run_passes(pass_pipeline)?;
     }
 
-    // Create execution engine
     let engine = codegen
         .module
         .create_jit_execution_engine(OptimizationLevel::Default)
         .map_err(|e| format!("Failed to create JIT: {}", e.to_string()))?;
 
-    // Call the __main wrapper function
+    // Call the __main wrapper that holds the top-level statements.
     unsafe {
         let func: inkwell::execution_engine::JitFunction<unsafe extern "C" fn() -> i64> =
             engine.get_function("__main").map_err(|e| e.to_string())?;

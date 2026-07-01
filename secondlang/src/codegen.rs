@@ -72,7 +72,6 @@ impl<'ctx> CodeGen<'ctx> {
             self.compile_main_wrapper(expr)?;
         }
 
-        // Verify module
         self.module
             .verify()
             .map_err(|e| format!("Module verification failed: {}", e.to_string()))?;
@@ -83,17 +82,15 @@ impl<'ctx> CodeGen<'ctx> {
 
     /// Create a __main wrapper function for top-level expression
     fn compile_main_wrapper(&mut self, expr: &TypedExpr) -> Result<(), String> {
-        // Create __main function: fn() -> i64
+        // Wrap the top-level expression in a `__main` function the JIT can call.
         let ret_type = self.context.i64_type();
         let fn_type = ret_type.fn_type(&[], false);
         let function = self.module.add_function("__main", fn_type, None);
 
-        // Create entry block
         let entry = self.context.append_basic_block(function, "entry");
         self.builder.position_at_end(entry);
         self.current_fn = Some(function);
 
-        // Compile the expression and return its value
         let value = self.compile_expr(expr)?;
         self.builder.build_return(Some(&value)).unwrap();
 
@@ -116,7 +113,6 @@ impl<'ctx> CodeGen<'ctx> {
         let fn_type = ret_type.fn_type(&param_types, false);
         let function = self.module.add_function(name, fn_type, None);
 
-        // Set parameter names
         for (i, (param_name, _)) in params.iter().enumerate() {
             function
                 .get_nth_param(i as u32)
@@ -151,15 +147,13 @@ impl<'ctx> CodeGen<'ctx> {
                     .cloned()
                     .ok_or_else(|| format!("Function {} not declared", name))?;
 
-                // Create entry block
                 let entry = self.context.append_basic_block(function, "entry");
                 self.builder.position_at_end(entry);
 
-                // Save current function
                 self.current_fn = Some(function);
                 self.variables.clear();
 
-                // Allocate parameters
+                // Store each parameter into a stack slot so the body can reassign it.
                 for (i, (param_name, param_type)) in params.iter().enumerate() {
                     let param_value = function.get_nth_param(i as u32).unwrap().into_int_value();
                     let alloca =
@@ -168,13 +162,12 @@ impl<'ctx> CodeGen<'ctx> {
                     self.variables.insert(param_name.clone(), alloca);
                 }
 
-                // Compile body
                 let mut last_value = None;
                 for body_stmt in body {
                     last_value = self.compile_stmt(body_stmt)?;
                 }
 
-                // Add return if needed
+                // Functions without an explicit `return` still need a terminator.
                 if self
                     .builder
                     .get_insert_block()
@@ -510,7 +503,6 @@ pub fn jit_run(program: &Program) -> Result<i64, String> {
 
     codegen.compile(program)?;
 
-    // Create execution engine
     let engine = codegen
         .module
         .create_jit_execution_engine(OptimizationLevel::Default)
@@ -539,7 +531,6 @@ mod tests {
             }
             answer()
         "#;
-        // Just test that it compiles
         let mut program = parse(source).unwrap();
         typecheck(&mut program).unwrap();
 

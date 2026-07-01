@@ -127,6 +127,29 @@ The verifier catches:
 
 Always verify before JIT execution!
 
+## How Errors Surface Today
+
+Our languages report errors as values, not exceptions. Each stage hands back a `Result`: the calculator uses `anyhow::Result<T>`, while Firstlang, Secondlang, and Thirdlang return `Result<T, String>`. There are three kinds you will meet:
+
+- **Parse errors** come from pest and already carry a line and column:
+
+```text
+Parse error:  --> 8:9
+  |
+8 |     def classify(self) -> int {
+  |         ^---
+  |
+  = expected Identifier
+```
+
+- **Type errors** come from the type checker as plain strings, for example `Type mismatch: expected int, got bool`.
+
+- **Setup and I/O errors**, such as pointing the CLI at a file that does not exist.
+
+The CLIs for Firstlang, Secondlang, and Thirdlang print these with `eprintln!` and exit non-zero. The calculator is the exception: its entry point still `unwrap()`s the file read and the parse result, so a missing file or a syntax error there ends in a panic rather than a tidy message.
+
+Two limits are worth naming. First, type-error strings have no source location, so they tell you *what* is wrong but not *where*. Second, the first error stops the pipeline; you fix one, rerun, and find the next. Real compilers attach a span to every diagnostic and recover to report several at once. We sketch how to get there in [What's Next](../whats_next.md#path-4-better-error-handling).
+
 ## The Debugging Mindset
 
 > Think like a detective. You have a crime (wrong output). You need to find where in the pipeline the crime occurred. Interrogate each stage until you find the culprit.

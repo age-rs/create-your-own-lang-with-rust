@@ -83,7 +83,7 @@ Walking through this:
 
 ### Step 3: Build the Function Body
 
-Now the fun part - generating the actual addition:
+Now we generate the actual addition:
 
 ```rust,ignore
 {{#include ../../../calculator/examples/llvm/src/main.rs:third}}
@@ -106,7 +106,7 @@ Time to turn our IR into machine code and run it:
 {{#include ../../../calculator/examples/llvm/src/main.rs:fourth}}
 ```
 
-This is where it gets real:
+Here the IR becomes executable code:
 
 - **`module.create_jit_execution_engine(OptimizationLevel::None)`** - Creates a JIT compiler. LLVM takes our IR and compiles it to native x86/ARM code *right now*, in memory.
 - **`execution_engine.get_function::<unsafe extern "C" fn(i32, i32) -> i32>("add")`** - Look up our compiled function. The type signature tells Rust how to call it.

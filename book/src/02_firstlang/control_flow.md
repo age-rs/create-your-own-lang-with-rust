@@ -85,7 +85,7 @@ max(10, 20)  # 20
 max(20, 10)  # 20
 ```
 
-The condition `a > b` determines which value to return. Simple, but powerful.
+The condition `a > b` determines which value to return.
 
 ## Loops: While
 
@@ -191,7 +191,7 @@ Same result, different approach. Loops and recursion are often interchangeable.
 
 ## Control Flow in Functions
 
-The real power comes from combining everything. Here's a more complex example:
+Combining these constructs is where real programs take shape. Here's a more complex example:
 
 ```
 def countdown(n) {
@@ -243,7 +243,7 @@ find_first_even(5)  # 2
 
 When `i = 2`, the condition `i % 2 == 0` is true, and we return immediately. The loop doesn't continue to `i = 3, 4, 5`. This "early return" pattern is common and efficient.
 
-## What Happens Under the Hood
+## Control Flow as Branching
 
 Both `if` and `while` are about *changing the flow of execution*. Without them, we execute line by line. With them, we can:
 

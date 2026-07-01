@@ -443,7 +443,7 @@ At this point, you should be able to:
 <strong>Related Topics</strong>
 
 - [Type Annotations](./annotations.md) - Where types come from
-- [Why Types Matter](./why_types.md) - Motivation for static types
+- [The Case for Types](./why_types.md) - Motivation for static types
 - [Code Generation](./codegen.md) - How types inform IR generation
 - [Thirdlang Types](../04_thirdlang/classes_syntax.md) - Extending types for classes
 

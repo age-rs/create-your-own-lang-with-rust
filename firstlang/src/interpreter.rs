@@ -89,7 +89,6 @@ impl Interpreter {
     fn exec_stmt(&mut self, stmt: &Stmt) -> Result<ControlFlow, String> {
         match stmt {
             Stmt::Function { name, params, body } => {
-                // Store the function in globals
                 self.globals.insert(
                     name.clone(),
                     Value::Function {
@@ -144,17 +143,14 @@ impl Interpreter {
             }
 
             Expr::Call { name, args } => {
-                // Look up the function
                 let func = self.lookup_var(name)?;
 
                 if let Value::Function { params, body } = func {
-                    // Evaluate arguments
                     let arg_values: Vec<Value> = args
                         .iter()
                         .map(|a| self.eval_expr(a))
                         .collect::<Result<_, _>>()?;
 
-                    // Check arity
                     if params.len() != arg_values.len() {
                         return Err(format!(
                             "Function {} expects {} arguments, got {}",
@@ -164,29 +160,24 @@ impl Interpreter {
                         ));
                     }
 
-                    // Create new frame for this call
+                    // Each call gets a fresh frame, which is what makes recursion work.
                     let mut frame = Frame::new();
                     for (param, arg) in params.iter().zip(arg_values) {
                         frame.locals.insert(param.clone(), arg);
                     }
-
-                    // Push the new frame onto the call stack
                     self.call_stack.push(frame);
 
-                    // Execute the function body
                     let mut result = Value::Unit;
                     for stmt in &body {
                         match self.exec_stmt(stmt)? {
                             ControlFlow::Continue(v) => result = v,
                             ControlFlow::Return(v) => {
-                                // Pop the frame before returning
                                 self.call_stack.pop();
                                 return Ok(v);
                             }
                         }
                     }
 
-                    // Pop the frame after normal completion
                     self.call_stack.pop();
                     Ok(result)
                 } else {
@@ -253,12 +244,11 @@ impl Interpreter {
 
     /// Look up a variable (check local frames first, then globals)
     fn lookup_var(&self, name: &str) -> Result<Value, String> {
-        // Check the current frame first (local variables)
+        // Locals shadow globals, so check the current frame before falling back.
         if let Some(val) = self.current_frame().locals.get(name) {
             return Ok(val.clone());
         }
 
-        // Check globals (functions and global variables)
         if let Some(val) = self.globals.get(name) {
             return Ok(val.clone());
         }
@@ -283,7 +273,6 @@ impl Interpreter {
     /// Evaluate a binary operation
     fn eval_binary_op(&self, op: BinaryOp, left: Value, right: Value) -> Result<Value, String> {
         match (op, &left, &right) {
-            // Arithmetic operations (integers only)
             (BinaryOp::Add, Value::Int(a), Value::Int(b)) => Ok(Value::Int(a + b)),
             (BinaryOp::Sub, Value::Int(a), Value::Int(b)) => Ok(Value::Int(a - b)),
             (BinaryOp::Mul, Value::Int(a), Value::Int(b)) => Ok(Value::Int(a * b)),
@@ -302,7 +291,6 @@ impl Interpreter {
                 }
             }
 
-            // Comparison operations (integers)
             (BinaryOp::Lt, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a < b)),
             (BinaryOp::Gt, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a > b)),
             (BinaryOp::Le, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a <= b)),
@@ -310,11 +298,9 @@ impl Interpreter {
             (BinaryOp::Eq, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a == b)),
             (BinaryOp::Ne, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a != b)),
 
-            // Boolean equality
             (BinaryOp::Eq, Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a == b)),
             (BinaryOp::Ne, Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a != b)),
 
-            // Type mismatch
             _ => Err(format!(
                 "Cannot apply {:?} to {:?} and {:?}",
                 op, left, right

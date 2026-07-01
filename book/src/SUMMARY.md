@@ -41,7 +41,7 @@
 
 - [From Interpreted to Compiled](transition_2_to_3.md)
 - [Secondlang: Adding Types and Compilation](03_secondlang/intro.md)
-  - [Why Types Matter](03_secondlang/why_types.md)
+  - [The Case for Types](03_secondlang/why_types.md)
   - [Type Annotations](03_secondlang/annotations.md)
   - [Type Inference](03_secondlang/inference.md)
   - [AST Optimizations (Visitor Pattern)](03_secondlang/optimizations.md)
@@ -56,7 +56,7 @@
 
 - [From Functions to Objects](transition_3_to_4.md)
 - [Thirdlang: Adding Classes and Objects](04_thirdlang/intro.md)
-  - [Why Classes?](04_thirdlang/why_classes.md)
+  - [The Case for Classes](04_thirdlang/why_classes.md)
   - [Class Syntax and Parsing](04_thirdlang/classes_syntax.md)
   - [Constructors and Object Creation](04_thirdlang/constructors.md)
   - [Methods and Self](04_thirdlang/methods.md)

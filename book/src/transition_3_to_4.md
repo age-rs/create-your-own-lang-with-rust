@@ -30,7 +30,7 @@ This works, but there are problems:
 
 We need a way to **group related data** and **attach behavior to that data**.
 
-## The Problem with Primitives
+## Primitives Alone Aren't Enough
 
 > Think of a filing cabinet. Secondlang gives you individual papers (integers, booleans). But you want *folders* that group related papers together. Classes are those folders.
 
@@ -191,7 +191,3 @@ Real languages solve this with:
 - **Smart pointers** (C++)
 
 We don't implement these because they're complex. But after Thirdlang, you'll understand *why* they exist and *what problems* they solve.
-
-## Ready?
-
-Let's add classes and objects.

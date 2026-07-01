@@ -68,10 +68,7 @@ impl Type {
             }
 
             // Type mismatch
-            _ => Err(format!(
-                "Type mismatch: expected {:?}, got {:?}",
-                self, other
-            )),
+            _ => Err(format!("Type mismatch: expected {}, got {}", self, other)),
         }
     }
     // ANCHOR_END: unify

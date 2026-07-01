@@ -1,8 +1,8 @@
-# Why Classes?
+# The Case for Classes
 
-Before diving into implementation, let us understand *why* we want classes. After all, [Secondlang](../03_secondlang/intro.md) works fine with just primitive types (`int` and `bool`). If you have not read [Why Types Matter](../03_secondlang/why_types.md), that chapter explains the benefits of static typing that we build upon here.
+Before diving into implementation, let us understand *why* we want classes. After all, [Secondlang](../03_secondlang/intro.md) works fine with just primitive types (`int` and `bool`). If you have not read [The Case for Types](../03_secondlang/why_types.md), that chapter explains the benefits of static typing that we build upon here.
 
-## The Problem: Related Data Scattered
+## Related Data Scattered
 
 In Secondlang, we can only work with individual `int` and `bool` values:
 
@@ -31,7 +31,7 @@ This has problems:
 3. **Verbose** - Every function needs all the pieces passed separately
 4. **No encapsulation** - Anyone can mess with `x1` directly
 
-## The Solution: Group Data with Classes
+## Grouping Data with Classes
 
 With classes, we bundle related data and behavior together:
 
@@ -54,7 +54,7 @@ class Point {
 
 p1 = new Point(10, 20)
 p2 = new Point(30, 40)
-p1.distance_squared(p2)  # Clean and clear!
+p1.distance_squared(p2)
 ```
 
 Now:
@@ -100,7 +100,7 @@ This is called a **[nominal type system](https://en.wikipedia.org/wiki/Nominal_t
 
 ## Memory Model: Stack vs Heap
 
-Here is where things get interesting. In Secondlang, everything lives on the **stack**. With classes, objects live on the **heap**, and variables hold **pointers** to them:
+In Secondlang, everything lives on the **stack**. With classes, objects live on the **heap**, and variables hold **pointers** to them:
 
 <p align="center">
 </br>

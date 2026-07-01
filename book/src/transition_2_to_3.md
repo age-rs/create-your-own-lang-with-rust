@@ -37,7 +37,7 @@ call fib          ; Direct jump, no lookup
 
 Two CPU instructions. No lookups, no checks, no allocations.
 
-## Why Interpretation is Slow
+## A Compiler Decides Once
 
 > Imagine reading a recipe in French. An *interpreter* translates each word as you cook - slow, but you can start immediately. A *compiler* translates the whole recipe to English first, then you cook from the translation - upfront cost, but much faster execution.
 
@@ -95,7 +95,7 @@ The *meaning* of programs stays the same. We're changing *how* they execute.
 | LLVM IR | Portable low-level code |
 | JIT compilation | Native speed |
 
-## The Payoff
+## The Speedup
 
 The exact same Fibonacci algorithm, but with type annotations:
 
@@ -131,7 +131,3 @@ Moving from Firstlang to Secondlang shows you how modern languages work:
 6. **JIT Compilation** - Compiling and running code on the fly
 
 These are the same techniques used in production compilers. After Secondlang, you'll understand how `rustc`, `swiftc`, and `clang` actually work under the hood.
-
-## Ready?
-
-Let's add types and compile to native code.

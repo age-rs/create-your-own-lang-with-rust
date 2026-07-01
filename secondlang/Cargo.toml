@@ -2,7 +2,7 @@
 name = "secondlang"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.83"
 description = "A typed, compiled programming language with LLVM backend"
 authors = ["Ehsan M. Kermani <ehsanmok@users.noreply.github.com>"]
 

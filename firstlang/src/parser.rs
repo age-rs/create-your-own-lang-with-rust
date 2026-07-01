@@ -36,7 +36,6 @@ fn parse_stmt(pair: Pair<Rule>) -> Result<Stmt, String> {
         Rule::Return => parse_return(inner),
         Rule::Assignment => parse_assignment(inner),
         Rule::Expr => Ok(Stmt::Expr(parse_expr(inner)?)),
-        // Handle direct expression rules that might appear
         Rule::Conditional | Rule::WhileLoop | Rule::Comparison => {
             Ok(Stmt::Expr(parse_expr(inner)?))
         }
@@ -189,19 +188,15 @@ fn parse_call(pair: Pair<Rule>) -> Result<Expr, String> {
     let mut inner = pair.into_inner();
     let first = inner.next().unwrap();
 
-    // Parse the primary expression (function name or parenthesized expr)
     let mut expr = parse_expr(first)?;
 
-    // Check for CallArgs (function call)
     for call_args in inner {
         if call_args.as_rule() == Rule::CallArgs {
-            // Parse arguments inside the CallArgs
             let args: Vec<Expr> = call_args
                 .into_inner()
                 .map(|p| parse_expr(p))
                 .collect::<Result<_, _>>()?;
 
-            // This is a function call
             if let Expr::Var(name) = expr {
                 expr = Expr::Call { name, args };
             } else {
@@ -293,9 +288,7 @@ mod tests {
     #[test]
     fn test_parse_conditional() {
         let program = parse("if (x < 10) { 1 } else { 2 }").unwrap();
-        if let Stmt::Expr(Expr::If { .. }) = &program[0] {
-            // Successfully parsed
-        } else {
+        if !matches!(&program[0], Stmt::Expr(Expr::If { .. })) {
             panic!("Expected If expression");
         }
     }

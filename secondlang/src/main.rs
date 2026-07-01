@@ -66,7 +66,6 @@ fn main() {
     };
 
     if check_only {
-        // Type check only
         match parse(&source) {
             Ok(mut program) => match typecheck(&mut program) {
                 Ok(()) => println!("Type check passed!"),
@@ -81,7 +80,6 @@ fn main() {
             }
         }
     } else if show_ast {
-        // Print AST
         match print_ast(&source) {
             Ok(ast) => println!("{}", ast),
             Err(e) => {
@@ -90,7 +88,6 @@ fn main() {
             }
         }
     } else if show_ir {
-        // Print LLVM IR
         match compile_to_ir_with_opts(&source, optimize) {
             Ok(ir) => println!("{}", ir),
             Err(e) => {
@@ -99,7 +96,6 @@ fn main() {
             }
         }
     } else {
-        // JIT compile and run
         match run_with_opts(&source, optimize) {
             Ok(result) => println!("{}", result),
             Err(e) => {

@@ -150,7 +150,7 @@ When we call `outer()`:
 
 The stack grows when functions are called and shrinks when they return. This is why we call it a *stack* - last in, first out.
 
-## Why Frames Matter
+## One Frame Per Call
 
 Consider this code:
 
@@ -220,4 +220,4 @@ The call stack during `quadruple(5)`:
 
 Notice how `x` has different values in different frames, even though they're all named `x`.
 
-Next, we'll add [control flow](./control_flow.md) to make our functions more powerful - the ability to make decisions and repeat actions.
+Next, we'll add [control flow](./control_flow.md): the ability to make decisions and repeat actions.

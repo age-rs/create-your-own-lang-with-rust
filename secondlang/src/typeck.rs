@@ -17,7 +17,8 @@ pub type TypeEnv = HashMap<String, Type>;
 pub fn typecheck(program: &mut Program) -> Result<(), String> {
     let mut env = TypeEnv::new();
 
-    // First pass: collect function signatures
+    // Collect every function signature first so functions can refer to each
+    // other regardless of the order they are defined in.
     for stmt in program.iter() {
         if let Stmt::Function {
             name,
@@ -35,7 +36,6 @@ pub fn typecheck(program: &mut Program) -> Result<(), String> {
         }
     }
 
-    // Second pass: type check each statement
     for stmt in program.iter_mut() {
         typecheck_stmt(stmt, &mut env)?;
     }
@@ -52,19 +52,16 @@ fn typecheck_stmt(stmt: &mut Stmt, env: &mut TypeEnv) -> Result<Type, String> {
             return_type,
             body,
         } => {
-            // Create local environment with parameters
             let mut local_env = env.clone();
             for (param_name, param_type) in params.iter() {
                 local_env.insert(param_name.clone(), param_type.clone());
             }
 
-            // Type check body
             let mut body_type = Type::Unit;
             for body_stmt in body.iter_mut() {
                 body_type = typecheck_stmt(body_stmt, &mut local_env)?;
             }
 
-            // Verify return type matches (if not Unknown)
             if *return_type != Type::Unknown && body_type != Type::Unit {
                 let _ = return_type.unify(&body_type)?;
             }
@@ -172,14 +169,12 @@ fn typecheck_expr(expr: &mut TypedExpr, env: &TypeEnv) -> Result<(), String> {
         }
 
         Expr::Call { name, args } => {
-            // Look up function type
             let func_type = env
                 .get(name)
                 .ok_or_else(|| format!("Undefined function: {}", name))?
                 .clone();
 
             if let Type::Function { params, ret } = func_type {
-                // Check argument count
                 if args.len() != params.len() {
                     return Err(format!(
                         "Function {} expects {} arguments, got {}",
@@ -189,10 +184,9 @@ fn typecheck_expr(expr: &mut TypedExpr, env: &TypeEnv) -> Result<(), String> {
                     ));
                 }
 
-                // Type check each argument
                 for (arg, param_type) in args.iter_mut().zip(params.iter()) {
                     typecheck_expr(arg, env)?;
-                    let _ = arg.ty.unify(param_type)?;
+                    let _ = param_type.unify(&arg.ty)?;
                 }
 
                 expr.ty = *ret;
@@ -211,7 +205,6 @@ fn typecheck_expr(expr: &mut TypedExpr, env: &TypeEnv) -> Result<(), String> {
                 return Err(format!("If condition must be bool, got {}", cond.ty));
             }
 
-            // Type check branches
             let mut then_env = env.clone();
             let mut then_type = Type::Unit;
             for stmt in then_branch.iter_mut() {
@@ -301,7 +294,6 @@ mod tests {
             add(1, 2)
         "#;
         let program = typecheck_source(source).unwrap();
-        // Function call should have int type
         if let Stmt::Expr(expr) = &program[1] {
             assert_eq!(expr.ty, Type::Int);
         }

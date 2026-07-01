@@ -224,7 +224,7 @@ Example test:
 
 Let us step back and appreciate what we accomplished:
 
-### Grammar (~140 lines)
+### Grammar (~124 lines)
 
 - Class definitions with fields and methods
 - Constructor and destructor syntax
@@ -268,7 +268,7 @@ All in a manageable codebase that implements real object-oriented features.
 
 | Feature | [Calculator](../01_calculator/calc_intro.md) | [Firstlang](../02_firstlang/intro.md) | [Secondlang](../03_secondlang/intro.md) | Thirdlang |
 |---------|------------|-----------|------------|-----------|
-| Grammar size | 18 lines | 70 lines | 77 lines | 140 lines |
+| Grammar size | 18 lines | 70 lines | 77 lines | 124 lines |
 | Type System | None | Dynamic | Static | Static + Classes |
 | Variables | No | Yes | Yes | Yes |
 | Functions | No | Yes | Yes | Yes + Methods |

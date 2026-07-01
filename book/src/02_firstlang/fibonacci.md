@@ -47,7 +47,7 @@ This is simple, but let's trace through what happens when we call `fib(4)`:
 
 Each call creates a new stack frame in our interpreter, and when the function returns, we pop the frame and continue with the result.
 
-## Why This Works
+## How Our Interpreter Handles This
 
 Our interpreter properly handles recursion because:
 

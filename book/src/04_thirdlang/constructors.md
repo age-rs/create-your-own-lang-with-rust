@@ -135,7 +135,7 @@ The generated LLVM IR looks like:
 ; new Point(10, 20)
 %size = call i64 @llvm.sizeof.s_Point()
 %raw = call ptr @malloc(i64 %size)
-call void @Point__init(ptr %raw, i64 10, i64 20)
+call void @Point____init__(ptr %raw, i64 10, i64 20)
 ; %raw is now a pointer to an initialized Point
 ```
 

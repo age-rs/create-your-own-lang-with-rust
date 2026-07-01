@@ -1,8 +1,8 @@
-# Why Types Matter
+# The Case for Types
 
 Before we start adding types to our language, let us take a moment to understand *why* we would want types in the first place. After all, [Firstlang](../02_firstlang/intro.md) works just fine without them.
 
-## The Problem: Runtime Surprises
+## Runtime Surprises
 
 In Firstlang, we can write code like this:
 
@@ -20,7 +20,7 @@ The third call `add(1, true)` will crash when the program runs. But here is the 
 
 In a small program, this might be okay. But imagine a large program with thousands of lines. The buggy code might be in a rarely-used feature. You deploy your program, and months later, a user triggers that code path and the program crashes. Not good.
 
-## The Solution: Catch Errors Early
+## Catching Errors Early
 
 With types, we tell the compiler *what kind of values* each variable can hold:
 
@@ -107,7 +107,7 @@ def isPositive(n: int) -> bool { ... }
 
 This notation `(int, int) -> int` is called a [function type](https://en.wikipedia.org/wiki/Function_type).
 
-## Type Inference: The Best of Both Worlds
+## Type Inference Keeps Code Concise
 
 You might worry that adding types means writing `int` everywhere, making code verbose. But we can be smarter.
 

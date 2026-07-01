@@ -232,7 +232,6 @@ fn parse_call(pair: Pair<Rule>) -> Result<TypedExpr, String> {
 
     let mut expr = parse_expr(first)?;
 
-    // Check for CallArgs (function call)
     for call_args in inner {
         if call_args.as_rule() == Rule::CallArgs {
             let args: Vec<TypedExpr> = call_args

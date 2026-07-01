@@ -32,7 +32,7 @@ cd create-your-own-lang-with-rust
 
 ### Calculator and Firstlang (stable Rust)
 
-These projects work with stable Rust 1.70+ and require no external dependencies:
+These projects work with stable Rust 1.83+ and require no external dependencies:
 
 ```bash
 # Calculator - interpreter mode
@@ -107,8 +107,8 @@ We start with the *simplest possible language*: integer arithmetic with `+` and 
 
 ```text
 Program = _{ SOI ~ Expr ~ EOF }
-Expr = { UnaryExpr | BinaryExpr | Term }
-Term = _{Int | "(" ~ Expr ~ ")" }
+Expr = { BinaryExpr | UnaryExpr | Term }
+Term = { Int | "(" ~ Expr ~ ")" }
 ...
 ```
 
